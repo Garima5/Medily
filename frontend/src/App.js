@@ -1,4 +1,170 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
+
+import abi from "./contractJson/EHR.json";  // Ensure you have your ABI file
+const ethers = require("ethers")
+const App = () => {
+    const [ethaccount, setAccount] = useState("Not Connected");
+    const [provider, setProvider] = useState(null);
+    const [signer, setSigner] = useState(null);
+    const [contract, setContract] = useState(null);
+    const [isDoctor, setIsDoctor] = useState(false);
+    const [isPatient, setIsPatient] = useState(false);
+
+    const contractAddress=   '0x5FbDB2315678afecb367f032d93F642f64180aa3'; // Replace with your contract address
+    const contractABI = abi.abi
+    const [state, setState ]= useState({
+      provider: null,
+      signer: null,
+      contractor: null
+    })
+    //console. log("ethers version", ethers.version)
+    useEffect(()=>{
+      const template= async()=>{
+        //const contractAddress = "0xa2655F1105E037bD604B8cC7F723c6735808C616"
+        const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+        const contractAbi = abi.abi
+        //console.log(contractAbi)
+        
+        // Metamask - to do transactions on any network and also because it has Infura API - which helps us in connecting to blockchain
+        // Metamask injects ethereum object inside our window
+        try{
+          //const {ethereum} =  window;
+          /*console.log("window.ethereum",window.ethereum)
+          if (typeof window.ethereum === 'undefined') {
+            console.log()
+            console.log('Window ethereum object not found')
+          }*/
+        const account = await window.ethereum.request({
+          method: "eth_requestAccounts"
+      }  )
+      window.ethereum.on('accountsChanged',()=>{
+        window.location.reload();
+      })
+        setAccount(account)
+        console.log("accounts", ethaccount)
+      const provider = new ethers.providers.Web3Provider(window.ethereum); // read the blockchain
+      const signer = provider.getSigner(); //write to blockchain
+      // create instance
+      const contract = new ethers.Contract(
+        contractAddress,
+        contractAbi,
+        signer
+      )
+      console.log("contract",contract)
+      setState({provider, signer, contract})
+        }
+  
+        catch(err){
+          console.log(err)
+        }
+        
+      } 
+      template();
+    },[])
+
+
+        
+
+    return (
+        <div className="App">
+            <header>
+                <h1>EHR System</h1>
+                <p>Connected as: {account}</p>
+            </header>
+            <main>
+                {isDoctor && <p>You are registered as a Doctor.</p>}
+                {isPatient && <p>You are registered as a Patient.</p>}
+                {!isDoctor && !isPatient && <p>You must be a registered doctor or patient to access the system.</p>}
+            </main>
+        </div>
+    );
+};
+
+export default App;
+
+
+/*import React, { useEffect, useState } from "react";
+import { init, contract } from "./web3connection"; // Ensure you have the init and contract functions
+const ethers = require("ethers")
+const App = () => {
+    console.log("ethers version", ethers.version)
+    const [account, setAccount] = useState("");
+    const [isDoctor, setIsDoctor] = useState(false);
+    const [isPatient, setIsPatient] = useState(false);
+
+    useEffect(() => {
+        const loadBlockchainData = async () => {
+            
+                // Initialize the blockchain connection
+                await init();
+                console.log("Initialized");
+                console.log("contract", contract);
+
+                // Get the user's Metamask account
+                console.log("getting accts")
+                const accounts = await window.ethereum.request({ method: "eth_accounts" });
+                console.log("got accts: ", accounts)
+                if (accounts.length === 0) {
+                    console.log("No accounts found. Please connect Metamask.");
+                    return;
+                }
+                setAccount(accounts[0]);
+                console.log("Connected account in APP:", accounts[0]);
+                const val = await contract.returnRandomVal()
+                console.log(val)
+
+                // Check if the account is a doctor by calling the contract mapping
+                //const doctorsData = await contract.methods.doctors(accounts[0]).call();
+                const doctorsData = await contract.doctors(accounts[0])
+                console.log("Doctor Data:", doctorsData);
+
+                if (doctorsData.id.toLowerCase() === accounts[0].toLowerCase()) {
+                    setIsDoctor(true);
+                    console.log("This account is a registered doctor.");
+                } else {
+                    console.log("This account is not a registered doctor.");
+                }
+
+                // Optionally: Check if the account is a patient
+                const patientsData = await contract.methods.patients(accounts[0]).call();
+                console.log("Patient Data:", patientsData);
+
+                if (patientsData.id.toLowerCase() === accounts[0].toLowerCase()) {
+                    setIsPatient(true);
+                    console.log("This account is a registered patient.");
+                } else {
+                    console.log("This account is not a registered patient.");
+                }
+            
+        };
+
+        loadBlockchainData();
+    }, []);
+
+    return (
+        <div className="App">
+            <header>
+                <h1>EHR System</h1>
+                <p>Connected as: {account}</p>
+            </header>
+            <main>
+                {isDoctor && <p>You are registered as a Doctor.</p>}
+                {isPatient && <p>You are registered as a Patient.</p>}
+                {!isDoctor && !isPatient && <p>You must be a registered doctor or patient to access the system.</p>}
+            </main>
+        </div>
+    );
+};
+
+export default App;
+*/
+
+
+
+
+
+/*import React from "react";
 import ImageUpload from "./components/ImageUpload1";
 import ImageDownload from "./components/ImageDownload1";
 export default function App(){
@@ -7,7 +173,7 @@ export default function App(){
       <ImageDownload />
     </div>
   )
-}
+}*/
 
 
 

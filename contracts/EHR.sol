@@ -18,8 +18,10 @@ contract EHR {
         address id;
     }
 
-    mapping(address => Patient) patients;
-    mapping(address => Doctor) doctors;
+    uint public ran;
+
+    mapping(address => Patient) public patients;
+    mapping(address => Doctor) public doctors;
 
     // Events
     event DoctorAdded(address doctorID);
@@ -69,4 +71,11 @@ contract EHR {
     function getRecords(address _patientID) public view senderExists patientExists(_patientID) returns (Record[] memory) {
         return patients[_patientID].records;
     }
+
+    function returnRandomVal() public returns(uint ){
+        ran = 10;
+        return ran;
+    }
+
+    
 }
